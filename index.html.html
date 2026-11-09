@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#101a25" />
+  <meta name="description" content="A private, offline-capable property investment and rental return calculator. No accounts or trackers." />
+  <title>Property Numbers — Investment Calculator</title>
+  <style>
+    :root { color-scheme: light; --navy:#101a25; --navy2:#1b2b3d; --cream:#f7f8fa; --ink:#1d2937; --sub:#667587; --green:#047e66; --red:#b34442; --border:#e4e8ee; --card:#fff; --blue:#315e91; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--cream); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Arial,sans-serif; line-height:1.45; }
+    header { background:linear-gradient(140deg,#101a25,#23354b); color:#fff; padding:32px max(24px,calc((100vw - 1120px)/2)); }
+    .eyebrow { font-size:11px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; color:#91d4c1; margin-bottom:8px; }
+    h1 { font-size:clamp(28px,4.2vw,44px); letter-spacing:-.04em; margin:0 0 5px; }
+    .lead { color:#c9d5df; font-size:14px; max-width:650px; margin:0; }
+    .status { display:inline-block; margin-top:14px; color:#dceee8; border:1px solid #507c72; border-radius:18px; padding:5px 10px; font-size:12px; }
+    main { width:min(1120px,100%); margin:0 auto; padding:24px 18px 60px; }
+    .toolbar { display:flex; flex-wrap:wrap; gap:8px; justify-content:space-between; align-items:center; margin-bottom:17px; }
+    .toolbar p { margin:0; font-size:13px; color:var(--sub); }
+    .actions { display:flex; flex-wrap:wrap; gap:7px; }
+    button { border:1px solid #cbd4df; background:white; color:var(--navy); border-radius:8px; font:600 12px inherit; font-family:inherit; font-size:12px; font-weight:700; padding:9px 12px; cursor:pointer; }
+    button:hover { border-color:var(--blue); }
+    button.primary { background:var(--navy); color:#fff; border-color:var(--navy); }
+    .layout { display:grid; grid-template-columns:minmax(270px,355px) minmax(0,1fr); gap:18px; align-items:start; }
+    .panel { background:var(--card); border:1px solid var(--border); border-radius:15px; padding:21px; box-shadow:0 1px 3px #1d29370b; }
+    .panel h2 { font-size:17px; letter-spacing:-.02em; margin:0 0 6px; }
+    .panel p.help { font-size:12px; color:var(--sub); margin:0 0 19px; }
+    .group { padding-top:16px; border-top:1px solid var(--border); margin-top:16px; }
+    .group h3 { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#485e71; margin:0 0 12px; }
+    .field { margin-bottom:13px; }
+    label { display:block; color:#3a4b5d; font-size:12px; font-weight:650; margin-bottom:5px; }
+    .inputwrap { position:relative; }
+    .inputwrap span { position:absolute; top:50%; left:12px; transform:translateY(-50%); color:#718092; font-size:13px; pointer-events:none; }
+    .inputwrap input { width:100%; border:1px solid #d7dee7; border-radius:8px; background:#fbfcfe; padding:11px 12px 11px 25px; font-size:15px; font-family:inherit; color:#152433; outline:none; font-variant-numeric:tabular-nums; }
+    .inputwrap input:focus { border-color:var(--blue); box-shadow:0 0 0 3px #315e911a; }
+    .inputwrap input.no-prefix { padding-left:12px; }
+    .inputwrap span.suffix { left:auto; right:12px; }
+    .inputwrap input.suffixed { padding-left:12px; padding-right:33px; }
+    .fieldnote { margin-top:4px; font-size:10px; color:var(--sub); }
+    .results { min-width:0; }
+    .hero { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+    .hero .tile { background:var(--navy); border-radius:13px; color:white; padding:19px 16px; min-width:0; }
+    .hero .tile.light { background:#e7f3ef; color:#123d35; }
+    .tile .caption { text-transform:uppercase; letter-spacing:.09em; font-size:10px; font-weight:800; opacity:.75; margin-bottom:8px; }
+    .tile .number { font-size:clamp(23px,3.3vw,32px); line-height:1.12; font-weight:800; letter-spacing:-.035em; overflow-wrap:anywhere; font-variant-numeric:tabular-nums; }
+    .tile .detail { font-size:11px; margin-top:9px; opacity:.7; }
+    .metrics { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:12px; }
+    .metric { background:white; border:1px solid var(--border); border-radius:12px; padding:15px; min-width:0; }
+    .metric .k { color:var(--sub); font-size:11px; font-weight:650; margin-bottom:8px; }
+    .metric .v { font-size:clamp(17px,2.2vw,24px); font-weight:800; letter-spacing:-.025em; overflow-wrap:anywhere; font-variant-numeric:tabular-nums; }
+    .metric .t { font-size:10px; color:var(--sub); margin-top:6px; }
+    .sectionhead { display:flex; justify-content:space-between; gap:8px; align-items:baseline; margin-bottom:15px; }
+    .sectionhead h2 { margin:0; }
+    .tag { background:#eef3f7; color:#566676; font-size:10px; font-weight:750; padding:5px 8px; border-radius:7px; }
+    .breakdown { margin-top:12px; }
+    .barline { display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:13px; margin:12px 0 6px; }
+    .barline strong { font-variant-numeric:tabular-nums; }
+    .track { height:9px; border-radius:10px; background:#e7ebef; overflow:hidden; }
+    .fill { height:100%; width:0; background:var(--green); border-radius:10px; transition:width .25s ease; }
+    .fill.debt { background:#8aa6c0; }
+    .fill.ops { background:#deb26f; }
+    .fill.tax { background:#aeb6c2; }
+    .insight { border:1px solid #d4e7df; background:#eff8f4; border-radius:11px; padding:15px; color:#1b4a3f; margin-top:15px; font-size:12px; }
+    .insight strong { display:block; font-size:13px; margin-bottom:5px; }
+    .warning { color:#783c2d; background:#fff4eb; border-color:#f0d8bd; }
+    .footnote { margin-top:15px; font-size:11px; color:var(--sub); }
+    .printonly { display:none; }
+    @media (max-width:810px) { .layout { grid-template-columns:1fr; } header { padding:25px 20px; } main { padding:16px 12px 45px; } .panel { padding:18px; } .results { order:-1; } .metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    @media (max-width:370px) { .hero { grid-template-columns:1fr; } .metrics { grid-template-columns:1fr 1fr; } }
+    @media print { body { background:white; } header { color:black; background:white; padding:10px 0; } .lead,.status,.toolbar,.actions { display:none!important; } header .eyebrow {color:#555} main {padding:10px 0;} .layout { grid-template-columns:280px 1fr; } .panel,.metric,.tile { break-inside:avoid; box-shadow:none; } .hero .tile { background:#eee; color:#000; } .hero .tile.light { background:#f4f4f4; color:#000; } .printonly {display:block;} }
+  </style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Personal finance · property</div>
+  <h1>Property Numbers</h1>
+  <p class="lead">See what a development could cost, how much monthly rent it needs, and what remains after expenses and loan EMI.</p>
+  <span class="status">🔒 Calculations run on your device · No sign-in · No data sent</span>
+</header>
+<main>
+  <div class="toolbar">
+    <p><strong>Scenario calculator</strong> · Example figures are editable and not market estimates.</p>
+    <div class="actions">
+      <button id="reset" type="button">Reset example</button>
+      <button id="csv" type="button">Export summary CSV</button>
+      <button class="primary" id="print" type="button">Print / Save PDF</button>
+    </div>
+  </div>
+  <div class="layout">
+    <section class="panel" aria-label="Project inputs">
+      <h2>Your assumptions</h2>
+      <p class="help">Change any number. Results update instantly. Figures below are only illustrative.</p>
+      <div class="group" style="margin-top:0;padding-top:0;border:0">
+        <h3>01 · Project cost</h3>
+        <div class="field"><label for="area">Construction area (sq ft)</label><div class="inputwrap"><input class="no-prefix" id="area" type="number" min="0" step="1" inputmode="decimal"></div></div>
+        <div class="field"><label for="rate">Construction rate (₹ per sq ft)</label><div class="inputwrap"><span>₹</span><input id="rate" type="number" min="0" step="100" inputmode="decimal"></div></div>
+        <div class="field"><label for="land">Land value included in investment</label><div class="inputwrap"><span>₹</span><input id="land" type="number" min="0" step="100000" inputmode="decimal"></div><div class="fieldnote">Use 0 for construction-only returns; add land value for total-project yield.</div></div>
+        <div class="field"><label for="extras">Other project costs</label><div class="inputwrap"><span>₹</span><input id="extras" type="number" min="0" step="10000" inputmode="decimal"></div><div class="fieldnote">Optional. No contingency is added automatically.</div></div>
+      </div>
+      <div class="group">
+        <h3>02 · Rental income & expenses</h3>
+        <div class="field"><label for="rent">Expected monthly rent</label><div class="inputwrap"><span>₹</span><input id="rent" type="number" min="0" step="10000" inputmode="decimal"></div><div class="fieldnote">Enter rent excluding GST / refundable deposit.</div></div>
+        <div class="field"><label for="vacancy">Vacancy / rent collection loss</label><div class="inputwrap"><input class="suffixed" id="vacancy" type="number" min="0" max="100" step="1" inputmode="decimal"><span class="suffix">%</span></div></div>
+        <div class="field"><label for="opex">Running costs (% of collected rent)</label><div class="inputwrap"><input class="suffixed" id="opex" type="number" min="0" max="100" step="1" inputmode="decimal"><span class="suffix">%</span></div></div>
+        <div class="field"><label for="tax">Annual property tax / fixed charges</label><div class="inputwrap"><span>₹</span><input id="tax" type="number" min="0" step="10000" inputmode="decimal"></div></div>
+      </div>
+      <div class="group">
+        <h3>03 · Bank loan</h3>
+        <div class="field"><label for="loan">Loan principal</label><div class="inputwrap"><span>₹</span><input id="loan" type="number" min="0" step="100000" inputmode="decimal"></div></div>
+        <div class="field"><label for="interest">Annual interest rate</label><div class="inputwrap"><input class="suffixed" id="interest" type="number" min="0" max="100" step=".1" inputmode="decimal"><span class="suffix">%</span></div></div>
+        <div class="field"><label for="years">Loan tenure (years)</label><div class="inputwrap"><input class="no-prefix" id="years" type="number" min="1" max="40" step="1" inputmode="decimal"></div></div>
+      </div>
+    </section>
+    <div class="results" aria-live="polite">
+      <div class="hero">
+        <div class="tile"><div class="caption">Total project investment</div><div class="number" id="totalCost">—</div><div class="detail">Construction + land value + other costs</div></div>
+        <div class="tile light"><div class="caption">Monthly cash flow after EMI</div><div class="number" id="monthCash">—</div><div class="detail">After estimated expenses and debt repayment</div></div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="k">Monthly loan EMI</div><div class="v" id="emi">—</div><div class="t">Principal + interest</div></div>
+        <div class="metric"><div class="k">Annual net operating income</div><div class="v" id="noi">—</div><div class="t">Before interest, taxes on income and EMI</div></div>
+        <div class="metric"><div class="k">Net rental yield</div><div class="v" id="yield">—</div><div class="t">Operating income / project investment</div></div>
+        <div class="metric"><div class="k">Gross rental yield</div><div class="v" id="gross">—</div><div class="t">Scheduled annual rent / investment</div></div>
+        <div class="metric"><div class="k">Annual cash flow</div><div class="v" id="annualCash">—</div><div class="t">NOI minus 12 EMIs</div></div>
+        <div class="metric"><div class="k">Debt service coverage</div><div class="v" id="dscr">—</div><div class="t">Annual NOI / annual EMI</div></div>
+      </div>
+      <section class="panel">
+        <div class="sectionhead"><h2>Where annual rent goes</h2><span class="tag">Annual view</span></div>
+        <div class="breakdown">
+          <div class="barline"><span>Scheduled rental income</span><strong id="grossIncome">—</strong></div><div class="track"><div class="fill" id="barIncome"></div></div>
+          <div class="barline"><span>Vacancy / collection loss</span><strong id="loss">—</strong></div><div class="track"><div class="fill tax" id="barLoss"></div></div>
+          <div class="barline"><span>Operating expenses & fixed charges</span><strong id="expenses">—</strong></div><div class="track"><div class="fill ops" id="barExpenses"></div></div>
+          <div class="barline"><span>Loan EMIs (annual)</span><strong id="debt">—</strong></div><div class="track"><div class="fill debt" id="barDebt"></div></div>
+        </div>
+        <div class="insight" id="insight" role="status"></div>
+        <div class="footnote">This is a planning model, not a property valuation, loan offer or tax calculation. It excludes income tax, GST treatment, stamp duty, brokerage, major future repairs, appreciation and sale proceeds unless included in inputs. Debt-service coverage is indicative only. Data is saved only in this browser's local storage; it will not sync across devices. Do not enter passwords or confidential account details.</div>
+      </section>
+    </div>
+  </div>
+</main>
+<script>
+(() => {
+  'use strict';
+  const defaults = {area:10000,rate:2000,land:0,extras:0,rent:200000,vacancy:5,opex:10,tax:120000,loan:10000000,interest:9.5,years:15};
+  const keys = Object.keys(defaults), byId=id=>document.getElementById(id);
+  const fmt = n => Number.isFinite(n) ? '₹' + Math.round(Math.abs(n)).toLocaleString('en-IN') : '—';
+  const signed = n => (n < -0.01 ? '−' : '') + fmt(n);
+  const pct = n => Number.isFinite(n) ? n.toFixed(2) + '%' : '—';
+  const num = id => { const v=Number(byId(id).value); return Number.isFinite(v) ? Math.max(0,v) : 0; };
+  const setText = (id,t)=>{byId(id).textContent=t;};
+  const paint = (id,n,max)=>{byId(id).style.width=(max>0 ? Math.max(0,Math.min(100,(n/max)*100)) : 0)+'%';};
+  function emi(P,annualRate,years) {
+    if(P <= 0) return 0;
+    const n=Math.max(1,years*12), r=annualRate/1200;
+    if(r===0) return P/n;
+    const q=Math.pow(1+r,n);
+    return P*r*q/(q-1);
+  }
+  let latest={};
+  function compute() {
+    const a=Object.fromEntries(keys.map(k=>[k,num(k)]));
+    const cost=a.area*a.rate+a.land+a.extras;
+    const gross=a.rent*12, vacancy=Math.min(100,a.vacancy)/100, running=Math.min(100,a.opex)/100;
+    const loss=gross*vacancy, collected=gross-loss;
+    const ops=collected*running+a.tax, noi=collected-ops;
+    const monthlyEmi=emi(a.loan,a.interest,Math.max(1,a.years));
+    const debt=monthlyEmi*12, cash=noi-debt;
+    const equity=cost-a.loan;
+    const dscr = debt>0?noi/debt:null;
+    const breakeven=(1-vacancy)*(1-running)>0 ? ((debt+a.tax)/((1-vacancy)*(1-running)))/12 : null;
+    setText('totalCost',fmt(cost));setText('monthCash',signed(cash/12));
+    byId('monthCash').style.color=cash<0?'#aa3d3d':'#123d35';
+    setText('emi',fmt(monthlyEmi));setText('noi',signed(noi));
+    setText('yield',cost>0?pct(noi/cost*100):'—');setText('gross',cost>0?pct(gross/cost*100):'—');
+    setText('annualCash',signed(cash));setText('dscr',dscr===null?'No loan':(dscr.toFixed(2)+'×'));
+    setText('grossIncome',fmt(gross));setText('loss',fmt(loss));setText('expenses',fmt(ops));setText('debt',fmt(debt));
+    paint('barIncome',gross,gross);paint('barLoss',loss,gross);paint('barExpenses',ops,gross);paint('barDebt',debt,gross);
+    const note=byId('insight');
+    let msg='';
+    if (a.loan>cost) msg='⚠️ Your loan exceeds the total project investment. Check the input values.';
+    else if (cash<0) msg='⚠️ At these assumptions, cash flow is negative by '+fmt(-cash/12)+' per month after EMI.';
+    else msg='✓ At these assumptions, projected surplus after EMI is '+fmt(cash/12)+' per month.';
+    if (breakeven!==null && a.loan>0) msg+=' Approximate monthly rent needed to cover operating costs and EMI: '+fmt(breakeven)+'.';
+    if (cost>0 && equity>0 && a.loan>0) msg+=' Your capital contribution is '+fmt(equity)+'.';
+    if (cost>0 && a.loan===0) msg+=' No loan EMI has been assumed.';
+    note.classList.toggle('warning',cash<0||a.loan>cost);
+    note.innerHTML='';const strong=document.createElement('strong');strong.textContent='Scenario insight';note.append(strong,document.createTextNode(msg));
+    latest={...a,cost,gross,loss,collected,ops,noi,monthlyEmi,debt,cash,equity,dscr,breakeven};
+    try { localStorage.setItem('property-numbers-v1',JSON.stringify(a)); } catch (_) { /* private browsing */ }
+  }
+  function restore() {
+    let initial=defaults;
+    try {
+      const saved=JSON.parse(localStorage.getItem('property-numbers-v1'));
+      if(saved && typeof saved==='object') initial={...defaults,...Object.fromEntries(keys.filter(k=>Number.isFinite(saved[k])).map(k=>[k,saved[k]]))};
+    } catch (_) { /* ignore */ }
+    keys.forEach(k=>{byId(k).value=initial[k];byId(k).addEventListener('input',compute);});
+    compute();
+  }
+  byId('reset').addEventListener('click',()=>{ keys.forEach(k=>byId(k).value=defaults[k]);compute(); });
+  byId('print').addEventListener('click',()=>window.print());
+  byId('csv').addEventListener('click',()=>{
+    const labels={area:'Construction area sq ft',rate:'Rate INR per sq ft',land:'Land value INR',extras:'Other project costs INR',rent:'Monthly rent INR',vacancy:'Vacancy percent',opex:'Operating costs percent',tax:'Annual property tax INR',loan:'Loan INR',interest:'Interest percent',years:'Loan years',cost:'Total project investment INR',gross:'Gross annual rent INR',loss:'Vacancy loss INR',collected:'Collected annual rent INR',ops:'Operating expenses INR',noi:'NOI INR per year',monthlyEmi:'Monthly EMI INR',debt:'Annual debt service INR',cash:'Annual cash flow after debt INR',equity:'Capital contribution INR',dscr:'DSCR ratio',breakeven:'Break-even monthly rent INR'};
+    const rows=[['Metric','Value'],...Object.entries(labels).map(([k,label])=>[label,latest[k]===null?'N/A':latest[k]])];
+    const csv=rows.map(row=>row.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\r\n');
+    const blob=new Blob(['\ufeff',csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),anchor=document.createElement('a');
+    anchor.href=url;anchor.download='property-investment-summary.csv';anchor.click();setTimeout(()=>URL.revokeObjectURL(url),3000);
+  });
+  restore();
+})();
+</script>
+</body>
+</html>
